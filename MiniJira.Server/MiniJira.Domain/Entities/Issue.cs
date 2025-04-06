@@ -16,8 +16,11 @@ namespace MiniJira.Domain.Entities
         public string? Description { get; set; }
         public string? Status { get; set; }
         public Guid ProjectId { get; set; }
+        public string ProjectName { get; set; }
         public Guid ReporterId { get; set; }
+        public string ReporterName { get; set; }
         public Guid? AssigneeId { get; set; }
+        public string? AssigneeName { get; set; }
 
         public Project Project { get; set; }
         public AuthUser Reporter { get; set; }

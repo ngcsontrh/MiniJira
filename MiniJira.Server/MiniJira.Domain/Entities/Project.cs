@@ -12,6 +12,7 @@ namespace MiniJira.Domain.Entities
         public string Code { get; set; }
         public string Name { get; set; }
         public Guid CreatorId { get; set; }
+        public string CreatorName { get; set; }
 
         public AuthUser Creator { get; set; }
     }
