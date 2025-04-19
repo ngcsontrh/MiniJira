@@ -1,0 +1,71 @@
+.logo {
+  height: 64px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+  font-weight: bold;
+  margin: 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.logo-header {
+  height: 48px;
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  font-weight: bold;
+  margin-right: 24px;
+}
+
+.main-header {
+  padding: 0 16px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  height: 48px;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.nav-menu {
+  flex: 1;
+  background: transparent;
+  border: none;
+  line-height: 48px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 0 12px;
+}
+
+.user-name {
+  margin-right: 8px;
+  color: #333;
+}
+
+.trigger-button {
+  padding: 0 12px;
+  font-size: 18px;
+  line-height: 48px;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+.main-content {
+  margin: 0;
+  padding: 24px;
+  height: calc(100vh - 48px);
+  overflow: auto;
+}

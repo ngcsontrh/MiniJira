@@ -1,0 +1,130 @@
+/* Base styling */
+:root {
+  --primary-color: #fa8c16;
+  --primary-color-hover: #ffa940;
+  --primary-color-active: #d46b08;
+  --background-color: #f5f5f5;
+  --text-color: #333;
+  --heading-color: #262626;
+  --border-color: #e8e8e8;
+  --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
+
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+/* General spacing utilities */
+.mt-1 { margin-top: 8px; }
+.mt-2 { margin-top: 16px; }
+.mt-3 { margin-top: 24px; }
+.mb-1 { margin-bottom: 8px; }
+.mb-2 { margin-bottom: 16px; }
+.mb-3 { margin-bottom: 24px; }
+
+/* Common componet styling */
+.card-container {
+  box-shadow: var(--card-shadow);
+  border-radius: 4px;
+  background-color: white;
+}
+
+/* Issue type and priority colors */
+.issue-bug { color: #f5222d; }
+.issue-task { color: #1890ff; }
+.issue-story { color: #52c41a; }
+.issue-epic { color: #722ed1; }
+
+.priority-highest { color: #f5222d; }
+.priority-high { color: #fa541c; }
+.priority-medium { color: #faad14; }
+.priority-low { color: #52c41a; }
+.priority-lowest { color: #1890ff; }
+
+/* Custom styling for drag and drop elements */
+.draggable-item {
+  cursor: move;
+  transition: box-shadow 0.2s ease;
+}
+
+.draggable-item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.dropzone {
+  border: 2px dashed transparent;
+  border-radius: 4px;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.dropzone-active {
+  border-color: var(--primary-color);
+  background-color: rgba(250, 140, 22, 0.05);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
