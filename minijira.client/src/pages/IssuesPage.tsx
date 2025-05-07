@@ -558,9 +558,9 @@ const IssuesPage: React.FC = () => {
           <Form.Item
             name="assigneeId"
             label="Người được giao"
-            rules={[{ required: false, message: "Vui lòng chọn người được giao" }]}
+            initialValue={user?.id}
           >
-            <Select placeholder="Chọn người được giao" defaultValue={user?.id}>
+            <Select placeholder="Chọn người được giao" allowClear>
               {usersData.map((user) => (
                 <Option key={user.id} value={user.id}>
                   {user.username}

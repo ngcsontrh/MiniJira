@@ -495,8 +495,9 @@ const ProjectDetailPage = () => {
           <Form.Item
             name="assigneeId"
             label="Người được giao"
+            initialValue={user?.id}
           >
-            <Select placeholder="Chọn người được giao">
+            <Select placeholder="Chọn người được giao" allowClear>
               {users && users.map((u) => (
                 <Option key={u.id} value={u.id}>
                   {u.username}
