@@ -236,13 +236,29 @@ const ProjectsPage: React.FC = () => {
           <Form.Item
             name="key"
             label="Mã dự án"
-            rules={[{ required: true, message: "Vui lòng nhập mã dự án" }]}
+            rules={[
+              { required: true, message: "Vui lòng nhập mã dự án" },
+              {
+                pattern: /^[a-zA-Z0-9]*$/,
+                message: "Chỉ được nhập chữ và số (không dấu, không ký tự đặc biệt)"
+              }
+            ]}
             tooltip="Một định danh ngắn cho dự án, ví dụ: 'PROJ'"
           >
             <Input maxLength={10} style={{ textTransform: "uppercase" }} />
           </Form.Item>
 
-          <Form.Item name="description" label="Mô tả">
+          <Form.Item 
+            name="description" 
+            label="Mô tả"
+            rules={[
+              { max: 255, message: "Mô tả không được quá 255 ký tự" },
+              {
+                pattern: /^[a-zA-Z0-9]*$/,
+                message: "Chỉ được nhập chữ và số (không dấu, không ký tự đặc biệt)"
+              }
+            ]}
+            >
             <TextArea rows={4} />
           </Form.Item>
 

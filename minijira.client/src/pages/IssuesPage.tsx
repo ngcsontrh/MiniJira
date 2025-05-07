@@ -486,7 +486,10 @@ const IssuesPage: React.FC = () => {
           <Form.Item
             name="title"
             label="Tiêu đề"
-            rules={[{ required: true, message: "Vui lòng nhập tiêu đề công việc" }]}
+            rules={[
+              { required: true, message: "Vui lòng nhập tiêu đề công việc" },
+              { max: 255, message: "Tiêu đề không được quá 255 ký tự" },
+            ]}
           >
             <Input />
           </Form.Item>
@@ -494,10 +497,14 @@ const IssuesPage: React.FC = () => {
           <Form.Item
             name="key"
             label="Mã"
-            rules={[{ required: true, message: "Vui lòng nhập mã dự án" }]}
+            rules={[
+              { required: true, message: "Vui lòng nhập mã dự án" },
+              { pattern: /^[a-zA-Z0-9]*$/, message: "Chỉ được nhập chữ và số (không dấu, không ký tự đặc biệt)" },
+              { max: 50, message: "Mã không được quá 50 ký tự" },
+            ]}
             tooltip="Một định danh ngắn cho dự án, ví dụ: 'PROJ'"
           >
-            <Input placeholder="Mã công việc (tự động tạo nếu để trống)" />
+            <Input placeholder="Mã công việc" />
           </Form.Item>
 
           <Form.Item
@@ -577,7 +584,13 @@ const IssuesPage: React.FC = () => {
             </Select>
           </Form.Item>
 
-          <Form.Item name="description" label="Mô tả">
+          <Form.Item 
+            name="description" 
+            label="Mô tả"
+            rules={[
+              { max: 1000, message: "Mô tả không được quá 1000 ký tự" },
+            ]}
+            >
             <TextArea rows={4} />
           </Form.Item>
 
@@ -585,6 +598,14 @@ const IssuesPage: React.FC = () => {
             <Upload.Dragger
               name="files"
               multiple
+              beforeUpload={(file) => {
+                const isLt10MB = file.size / 1024 / 1024 < 10;
+                if (!isLt10MB) {
+                  message.error(`${file.name} vượt quá dung lượng cho phép (tối đa 10MB).`);
+                  return Upload.LIST_IGNORE;
+                }
+                return true; // Cho phép upload tiếp tục
+              }}
               customRequest={({ file, onSuccess }) => {
                 // Upload file immediately
                 handleImmediateFileUpload(file as File);

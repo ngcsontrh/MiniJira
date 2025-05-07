@@ -435,7 +435,10 @@ const ProjectDetailPage = () => {
           <Form.Item
             name="title"
             label="Tiêu đề"
-            rules={[{ required: true, message: 'Vui lòng nhập tiêu đề công việc' }]}
+            rules={[
+              { required: true, message: 'Vui lòng nhập tiêu đề công việc' },
+              { max: 255, message: 'Tiêu đề không được quá 255 ký tự' },
+            ]}
           >
             <Input />
           </Form.Item>
@@ -443,9 +446,16 @@ const ProjectDetailPage = () => {
           <Form.Item
             name="key"
             label="Mã"
-            rules={[{ required: false, message: "Vui lòng nhập mã công việc" }]}
+            rules={[
+              { required: true, message: "Vui lòng nhập mã công việc" },
+              {
+                pattern: /^[a-zA-Z0-9]+$/,
+                message: "Chỉ được nhập chữ cái và số (không dấu, không ký tự đặc biệt)"
+              },
+              { max: 50, message: 'Mã công việc không được quá 50 ký tự' },
+            ]}
           >
-            <Input placeholder="Mã công việc (tự động tạo nếu để trống)" />
+            <Input placeholder="Mã công việc" />
           </Form.Item>
           
           <Form.Item
@@ -514,6 +524,9 @@ const ProjectDetailPage = () => {
           <Form.Item
             name="description"
             label="Mô tả"
+            rules={[
+              { max: 1000, message: 'Mô tả không được quá 1000 ký tự' },
+            ]}
           >
             <TextArea rows={4} />
           </Form.Item>
@@ -524,6 +537,14 @@ const ProjectDetailPage = () => {
             <Upload.Dragger
               name="files"
               multiple
+              beforeUpload={(file) => {
+                const isLt10MB = file.size / 1024 / 1024 < 10;
+                if (!isLt10MB) {
+                  message.error(`${file.name} vượt quá dung lượng cho phép (tối đa 10MB).`);
+                  return Upload.LIST_IGNORE;
+                }
+                return true; // Cho phép upload tiếp tục
+              }}
               customRequest={({ file, onSuccess }) => {
                 // Tải file lên ngay lập tức
                 handleImmediateFileUpload(file as File);
