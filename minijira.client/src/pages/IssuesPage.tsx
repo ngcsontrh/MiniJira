@@ -292,20 +292,29 @@ const IssuesPage: React.FC = () => {
       title: "Trạng thái",
       dataIndex: "status",
       key: "status",
-      render: (status: IssueStatus, record: Issue) => (
-        <Select
-          value={status}
-          style={{ width: 130 }}
-          onChange={(newStatus) =>
-            handleStatusChange(record, newStatus as IssueStatus)
-          }
-        >
-          <Option value="todo">Cần làm</Option>
-          <Option value="in_progress">Đang làm</Option>
-          <Option value="in_review">Đang xem xét</Option>
-          <Option value="done">Hoàn thành</Option>
-        </Select>
-      ),
+      render: (status: IssueStatus, record: Issue) => {
+        const isAdminOrPMOrTester = user?.role === "Admin" || user?.role === "ProjectManager" || user?.role === "Tester";
+
+        const isAssignee = record.assigneeId === user?.id;
+
+        const canEdit = isAdminOrPMOrTester || isAssignee;
+
+        return (
+          <Select
+            value={status}
+            style={{ width: 130 }}
+            disabled={!canEdit}
+            onChange={(newStatus) =>
+              handleStatusChange(record, newStatus as IssueStatus)
+            }
+          >
+            <Option value="todo">Cần làm</Option>
+            <Option value="in_progress">Đang làm</Option>
+            <Option value="in_review">Đang xem xét</Option>
+            <Option value="done">Hoàn thành</Option>
+          </Select>
+        );
+      },
     },
     {
       title: "Dự án",
@@ -334,27 +343,36 @@ const IssuesPage: React.FC = () => {
             {assignee ? assignee.username : "Chưa được giao"}
           </Space>
         );
-      }
+      },
     },
-    {
-      title: "Thao tác",
-      key: "actions",
-      render: (_: unknown, record: Issue) => (
-        <Space>
-          <Link to={`/issues/${record.id}`}>
-            <Button type="text" icon={<EditOutlined />} />
-          </Link>
-          <Popconfirm
-            title="Bạn có chắc chắn muốn xóa công việc này không?"
-            onConfirm={() => console.log("Delete issue", record.id)}
-            okText="Có"
-            cancelText="Không"
-          >
-            <Button type="text" danger icon={<DeleteOutlined />} />
-          </Popconfirm>
-        </Space>
-      ),
-    },
+    ...(() => {
+      const isDisplay =
+        user?.role === "Admin" ||
+        user?.role === "ProjectManager" ||
+        user?.role === "Tester";
+      if (!isDisplay) return [];
+      return [
+        {
+          title: "Thao tác",
+          key: "actions",
+          render: (_: unknown, record: Issue) => (
+            <Space>
+              <Link to={`/issues/${record.id}`}>
+                <Button type="text" icon={<EditOutlined />} />
+              </Link>
+              <Popconfirm
+                title="Bạn có chắc chắn muốn xóa công việc này không?"
+                onConfirm={() => console.log("Delete issue", record.id)}
+                okText="Có"
+                cancelText="Không"
+              >
+                <Button type="text" danger icon={<DeleteOutlined />} />
+              </Popconfirm>
+            </Space>
+          ),
+        },
+      ];
+    })(),
   ];
 
   if (issuesLoading || projectsLoading || usersLoading) {
@@ -372,22 +390,33 @@ const IssuesPage: React.FC = () => {
         }}
       >
         <Title level={2}>Công việc</Title>
-        <Space>
-          <Button
-            type="primary"
-            icon={<DownloadOutlined />}
-            onClick={handleExportExcel}
-          >
-            Xuất Excel
-          </Button>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={showCreateModal}
-          >
-            Tạo công việc mới
-          </Button>
-        </Space>
+        {(() => {
+          const isDisplay =
+            user?.role === "Admin" ||
+            user?.role === "ProjectManager" ||
+            user?.role === "Tester";
+
+          if (!isDisplay) return null;
+
+          return (
+            <Space>
+              <Button
+                type="primary"
+                icon={<DownloadOutlined />}
+                onClick={handleExportExcel}
+              >
+                Xuất Excel
+              </Button>
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={showCreateModal}
+              >
+                Tạo công việc mới
+              </Button>
+            </Space>
+          );
+        })()}
       </div>
 
       <Flex gap={5} style={{ marginBottom: "15px" }}>
@@ -499,7 +528,11 @@ const IssuesPage: React.FC = () => {
             label="Mã"
             rules={[
               { required: true, message: "Vui lòng nhập mã dự án" },
-              { pattern: /^[a-zA-Z0-9]*$/, message: "Chỉ được nhập chữ và số (không dấu, không ký tự đặc biệt)" },
+              {
+                pattern: /^[a-zA-Z0-9]*$/,
+                message:
+                  "Chỉ được nhập chữ và số (không dấu, không ký tự đặc biệt)",
+              },
               { max: 50, message: "Mã không được quá 50 ký tự" },
             ]}
             tooltip="Một định danh ngắn cho dự án, ví dụ: 'PROJ'"
@@ -524,7 +557,9 @@ const IssuesPage: React.FC = () => {
           <Form.Item
             name="type"
             label="Loại công việc"
-            rules={[{ required: true, message: "Vui lòng chọn loại công việc" }]}
+            rules={[
+              { required: true, message: "Vui lòng chọn loại công việc" },
+            ]}
           >
             <Select placeholder="Chọn loại công việc">
               {ISSUE_TYPES.map((type) => (
@@ -584,13 +619,11 @@ const IssuesPage: React.FC = () => {
             </Select>
           </Form.Item>
 
-          <Form.Item 
-            name="description" 
+          <Form.Item
+            name="description"
             label="Mô tả"
-            rules={[
-              { max: 1000, message: "Mô tả không được quá 1000 ký tự" },
-            ]}
-            >
+            rules={[{ max: 1000, message: "Mô tả không được quá 1000 ký tự" }]}
+          >
             <TextArea rows={4} />
           </Form.Item>
 
@@ -601,7 +634,9 @@ const IssuesPage: React.FC = () => {
               beforeUpload={(file) => {
                 const isLt10MB = file.size / 1024 / 1024 < 10;
                 if (!isLt10MB) {
-                  message.error(`${file.name} vượt quá dung lượng cho phép (tối đa 10MB).`);
+                  message.error(
+                    `${file.name} vượt quá dung lượng cho phép (tối đa 10MB).`
+                  );
                   return Upload.LIST_IGNORE;
                 }
                 return true; // Cho phép upload tiếp tục

@@ -12,15 +12,15 @@ import { handleApiError } from '../services/api';
 export const projectMemberKeys = {
   all: ['projectMembers'] as const,
   lists: () => [...projectMemberKeys.all, 'list'] as const,
-  list: (projectId: string) => [...projectMemberKeys.lists(), { projectId }] as const,
+  list: (projectId?: string, memberId?: string) => [...projectMemberKeys.lists(), { projectId, memberId }] as const,
 };
 
 // Hook for fetching project members
-export const useProjectMembers = (projectId: string) => {
+export const useProjectMembers = (projectId?: string, memberId?: string) => {
   return useQuery({
-    queryKey: projectMemberKeys.list(projectId),
-    queryFn: () => getProjectMembers(projectId),
-    enabled: !!projectId // Only run the query if we have a projectId
+    queryKey: projectMemberKeys.list(projectId, memberId),
+    queryFn: () => getProjectMembers(projectId, memberId),
+    enabled: !!projectId  || !!memberId,
   });
 };
 

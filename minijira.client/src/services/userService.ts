@@ -103,3 +103,13 @@ export const changePassword = async (model: ChangePassword): Promise<void> => {
     localStorage.setItem(TOKEN_KEY, currentToken);
   }
 }
+
+/**
+ * Change user role
+ * @param userId User ID
+ * @param role New role to assign to the user
+ * @returns Promise with the result of the role change
+ */
+export const changeRole = async (userDto: User): Promise<void> => {
+  await api.post(`${API_URL}/change-role`, userDto);
+}

@@ -1,3 +1,5 @@
+using System;
+
 namespace MiniJira.Server.Entities
 {
     public class Issue

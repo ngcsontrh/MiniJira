@@ -32,13 +32,20 @@ namespace MiniJira.Server.Controllers
         {
             var user = userDto.ToEntity();
             user.Password = PasswordHelper.HashPassword(userDto.Password!);
-            user.Role = "User";
             user.CreatedAt = DateTime.UtcNow;
             user.UpdatedAt = DateTime.UtcNow;
 
             await _unitOfWork.UserRepository.AddAsync(user);
             
             return Created();
+        }
+
+        [HttpPost("change-role")]
+        [Authorize]
+        public async Task<IActionResult> ChangeRole([FromBody] UserDTO userDTO)
+        {
+            await _unitOfWork.UserRepository.ChangeRoleAsync(userDTO.Id!.Value, userDTO.Role!);
+            return NoContent();
         }
 
         [HttpGet]

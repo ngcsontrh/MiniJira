@@ -7,10 +7,10 @@ const BASE_URL = '/api/ProjectMember';
  * Get project members for a specific project
  * @param projectId The ID of the project to get members for
  */
-export const getProjectMembers = async (projectId: string): Promise<ProjectMember[]> => {
+export const getProjectMembers = async (projectId?: string, memberId?: string): Promise<ProjectMember[]> => {
   try {
     const response = await api.get(`${BASE_URL}`, {
-      params: { projectId }
+      params: { projectId, memberId }
     });
     return response.data;
   } catch (error) {

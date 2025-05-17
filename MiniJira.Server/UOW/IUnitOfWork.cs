@@ -14,5 +14,6 @@ namespace MiniJira.Server.UOW
         IProjectRepository ProjectRepository { get; }
         IUserRepository UserRepository { get; }
         IIssueAttachmentRepository IssueAttachmentRepository { get; }
+        IAuditLogRepository AuditLogRepository { get; }
     }
 }

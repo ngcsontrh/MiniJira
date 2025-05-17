@@ -5,7 +5,8 @@ import {
   getUserById,
   getUsers,
   logoutUser,
-  changePassword
+  changePassword,
+  changeRole
 } from '../services/userService';
 import { User, Login, ChangePassword } from '../models/User';
 import { handleApiError } from '../services/api';
@@ -107,3 +108,20 @@ export const useChangePassword = () => {
     }
   });
 }
+
+// Hook for change user role
+export const useChangeUserRole = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (params: { userId: string; role: string }) => changeRole({id: params.userId, role: params.role}),
+    onSuccess: () => {
+      // Invalidate user-related queries to refresh data
+      queryClient.invalidateQueries({ queryKey: userKeys.all });
+    },
+    onError: (error) => {
+      console.error('Change user role error:', handleApiError(error));
+      return handleApiError(error);
+    }
+  });
+};

@@ -20,11 +20,29 @@ namespace MiniJira.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetProjectMembers([FromQuery] Guid projectId)
+        public async Task<IActionResult> GetProjectMembers(
+            [FromQuery] Guid? projectId,
+            [FromQuery] Guid? memberId
+            )
         {
-            var members = await _unitOfWork.ProjectMemberRepository.GetProjectMembersByProjectIdAsync(projectId);
-            return Ok(members.ToDTO());
+            if (projectId.HasValue && !memberId.HasValue)
+            {
+                var members = await _unitOfWork.ProjectMemberRepository.GetProjectMembersByProjectIdAsync(projectId.Value);
+                return Ok(members.ToDTO());
+            }
+            else if (memberId.HasValue && !projectId.HasValue)
+            {
+                var members = await _unitOfWork.ProjectMemberRepository.GetProjectMembersByMemberIdAsync(memberId.Value);
+                return Ok(members.ToDTO());
+            }
+            else if (projectId.HasValue && memberId.HasValue)
+            {
+                var members = await _unitOfWork.ProjectMemberRepository.GetProjectMembersByProjectAndMemberIdAsync(projectId.Value, memberId.Value);
+                return Ok(members.ToDTO());
+            }
+            return BadRequest();
         }
+
 
         [HttpPost("add")]
         public async Task<IActionResult> AddProjectMember([FromBody] ProjectMemberDTO memberDto)

@@ -59,5 +59,20 @@ namespace MiniJira.Server.Mappers
             if (issueDTOs == null) return null!;
             return issueDTOs.Select(i => i.ToEntity()).ToList();
         }
+
+        public static IssueChangeDTO ToChangeDTO(this Issue issue)
+        {
+            if (issue == null) return null!;
+            return new IssueChangeDTO
+            {
+                Id = issue.Id,
+                Key = issue.Key,
+                Title = issue.Title,
+                Description = issue.Description,
+                Type = issue.Type,
+                Priority = issue.Priority,
+                Status = issue.Status,                
+            };
+        }
     }
 }

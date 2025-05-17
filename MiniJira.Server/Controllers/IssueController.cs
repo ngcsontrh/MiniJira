@@ -5,6 +5,8 @@ using MiniJira.Server.Entities;
 using MiniJira.Server.Filters;
 using MiniJira.Server.Mappers;
 using MiniJira.Server.UOW;
+using MiniJira.Server.Utils;
+using System.Text.Json;
 
 namespace MiniJira.Server.Controllers
 {
@@ -41,9 +43,15 @@ namespace MiniJira.Server.Controllers
             {
                 var issue = await _unitOfWork.IssueRepository.GetDetailAsync(id);
                 var issueAttachments = await _unitOfWork.AttachmentRepository.GetAttachmentsByIssueIdAsync(id);
+                var auditLogs = await _unitOfWork.AuditLogRepository.GetByEntityAndId(nameof(Issue), id);
                 var issueDTO = issue.ToDTO();
                 issueDTO.AttachmentIds = issueAttachments.Select(a => a.Id).ToList();
                 issueDTO.AttachmentUrls = issueAttachments.Select(a => a.FilePath).ToList();
+                issueDTO.Logs = auditLogs.Select(x => new ChangeIssueData
+                {
+                    OldData = x.OldValue,
+                    NewData = x.NewValue
+                }).ToList();
                 return Ok(issueDTO);
             }
             catch (KeyNotFoundException)
@@ -98,14 +106,28 @@ namespace MiniJira.Server.Controllers
 
                 var issue = issueDto.ToEntity();
                 issue.UpdatedAt = DateTime.UtcNow;
-
-                await _unitOfWork.IssueRepository.UpdateAsync(issue, false);
+                var entity = await _unitOfWork.IssueRepository.GetByIdAsync(issueDto.Id!.Value);
+                var dataChange = new ChangeIssueData
+                {
+                    OldData = JsonSerializer.Serialize(entity.ToChangeDTO()),
+                    NewData = JsonSerializer.Serialize(issueDto.ToEntity().ToChangeDTO())
+                };
+                entity.Update(issue);
+                await _unitOfWork.IssueRepository.UpdateAsync(entity, false);
                 await _unitOfWork.IssueAttachmentRepository.DeleteByIssueIdAsync(issue.Id);
                 await _unitOfWork.IssueAttachmentRepository.AddRangeAsync(issueDto.AttachmentIds?.Select(x => new IssueAttachment
                 {
                     IssueId = issue.Id,
                     AttachmentId = x
                 }) ?? new List<IssueAttachment>(), false);
+                await _unitOfWork.AuditLogRepository.AddAsync(new AuditLog
+                {
+                    Id = Guid.NewGuid(),
+                    Entity = nameof(Issue),
+                    EntityId = issue.Id,
+                    OldValue = dataChange.OldData,
+                    NewValue = dataChange.NewData
+                });
                 await _unitOfWork.CommitTransactionAsync();
                 return NoContent();
             }

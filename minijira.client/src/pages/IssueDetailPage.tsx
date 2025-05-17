@@ -43,6 +43,7 @@ import { useUsers } from '../hooks/useUsers';
 import { IssueStatus, IssueType, IssuePriority } from '../models/Issue';
 import { Comment as CommentModel } from '../models/Comment';
 import useAuth from '../hooks/useAuth';
+import "json-diff-kit/dist/viewer.css";
 
 const { Title, Text, Paragraph } = Typography;
 const { confirm } = Modal;
@@ -131,12 +132,12 @@ const IssueDetailPage = () => {
     if (!issue) return;
     
     confirm({
-      title: 'Are you sure you want to delete this issue?',
+      title: 'Bạn có chắc chắn muốn xóa công việc này không?',
       icon: <ExclamationCircleOutlined />,
-      content: 'This action cannot be undone.',
-      okText: 'Yes, Delete',
+      content: 'Hành động này không thể hoàn tác.',
+      okText: 'Xác nhận',
       okType: 'danger',
-      cancelText: 'Cancel',
+      cancelText: 'Hủy',
       onOk() {
         deleteIssueMutation.mutate(issue, {
           onSuccess: () => {
@@ -155,7 +156,7 @@ const IssueDetailPage = () => {
     const updatedIssue = { ...issue, status: newStatus };
     updateIssueMutation.mutate(updatedIssue, {
       onSuccess: () => {
-        message.success(`Status updated to ${newStatus.replace('_', ' ').toUpperCase()}`);
+        message.success(`Trạng thái được cập nhật thành công`);
       }
     });
   };
@@ -173,11 +174,11 @@ const IssueDetailPage = () => {
     addCommentMutation.mutate(newComment, {
       onSuccess: () => {
         setComment('');
-        message.success('Comment added successfully');
+        message.success('Đã thêm bình luận thành công');
         refetchComments(); // Refresh comments after adding
       },
       onError: (error) => {
-        message.error(`Failed to add comment: ${error}`);
+        message.error('Thêm bình luận thất bại: ' + error);
       }
     });
   };
@@ -185,12 +186,12 @@ const IssueDetailPage = () => {
   // Handle delete comment
   const handleDeleteComment = (commentId: string) => {
     confirm({
-      title: 'Are you sure you want to delete this comment?',
+      title: 'Bạn có chắc chắn muốn xóa bình luận này không?',
       icon: <ExclamationCircleOutlined />,
-      content: 'This action cannot be undone.',
-      okText: 'Yes, Delete',
+      content: 'Hành động này không thể hoàn tác.',
+      okText: 'Xác nhận',
       okType: 'danger',
-      cancelText: 'Cancel',
+      cancelText: 'Hủy',
       onOk() {
         deleteCommentMutation.mutate({ id: commentId } as CommentModel, {
           onSuccess: () => {
@@ -211,7 +212,7 @@ const IssueDetailPage = () => {
     
     uploadAttachmentMutation.mutate({ issueId: id, file }, {
       onSuccess: (data) => {
-        message.success(`${file.name} uploaded successfully`);
+        message.success(`${file.name} đã được tải lên thành công`);
         
         // Add the new attachment ID to the issue's attachmentIds array
         if (data.id && issue) {
@@ -224,7 +225,7 @@ const IssueDetailPage = () => {
               refetchAttachments(); // Refresh attachments after uploading
             },
             onError: (error) => {
-              message.error(`Failed to update issue attachments: ${error}`);
+              message.error(`Cập nhật file đính kèm thất bại: ${error}`);
             }
           });
         } else {
@@ -232,7 +233,7 @@ const IssueDetailPage = () => {
         }
       },
       onError: (error) => {
-        message.error(`Failed to upload ${file.name}: ${error}`);
+        message.error(`Tải lên file đính kèm thất bại ${file.name}: ${error}`);
       }
     });
     
@@ -246,10 +247,10 @@ const IssueDetailPage = () => {
       { id, fileName },
       {
         onSuccess: () => {
-          message.success("Attachment downloaded successfully");
+          message.success("Tải xuống tệp đính kèm thành công");
         },
         onError: (error) => {
-          message.error(`Failed to download attachment: ${error}`);
+          message.error(`Tải xuống file đính kèm thất bại: ${error}`);
         },
       }
     );
@@ -258,12 +259,12 @@ const IssueDetailPage = () => {
   // Handle delete attachment
   const handleDeleteAttachment = (attachmentId: string) => {
     confirm({
-      title: 'Are you sure you want to delete this attachment?',
+      title: 'Bạn có chắc chắn muốn xóa tệp đính kèm này không?',
       icon: <ExclamationCircleOutlined />,
-      content: 'This action cannot be undone.',
-      okText: 'Yes, Delete',
+      content: 'Hành động này không thể hoàn tác.',
+      okText: 'Xác nhận',
       okType: 'danger',
-      cancelText: 'Cancel',
+      cancelText: 'Hủy',
       onOk() {
         // We just need to update the issue's attachmentIds array
         if (issue) {
@@ -272,11 +273,11 @@ const IssueDetailPage = () => {
           
           updateIssueMutation.mutate(updatedIssue, {
             onSuccess: () => {
-              message.success('Attachment deleted successfully');
+              message.success('Tệp đính kèm đã được xóa thành công');
               refetchAttachments(); // Refresh attachments after deletion
             },
             onError: (error) => {
-              message.error(`Failed to delete attachment: ${error}`);
+              message.error(`Xóa tệp đính kèm thất bại: ${error}`);
             }
           });
         }
@@ -338,7 +339,7 @@ const IssueDetailPage = () => {
   }
   
   if (!issue) {
-    return <Empty description="Issue not found" />;
+    return <Empty description="Không tìm thấy công việc" />;
   }
 
   return (
@@ -422,46 +423,51 @@ const IssueDetailPage = () => {
                   : "N/A"}
               </Descriptions.Item>
               <Descriptions.Item label="Mô tả" span={2}>
-                <Paragraph>
-                  {issue.description || "Không có mô tả"}
-                </Paragraph>
+                <Paragraph>{issue.description || "Không có mô tả"}</Paragraph>
               </Descriptions.Item>
             </Descriptions>
 
-            <Divider orientation="left">Chuyển trạng thái</Divider>
-
-            <div style={{ marginBottom: "24px" }}>
-              <Space>
-                <Button
-                  type={issue.status === "todo" ? "primary" : "default"}
-                  onClick={() => handleStatusChange("todo")}
-                  disabled={issue.status === "todo"}
-                >
-                  Cần làm
-                </Button>
-                <Button
-                  type={issue.status === "in_progress" ? "primary" : "default"}
-                  onClick={() => handleStatusChange("in_progress")}
-                  disabled={issue.status === "in_progress"}
-                >
-                  Đang làm
-                </Button>
-                <Button
-                  type={issue.status === "in_review" ? "primary" : "default"}
-                  onClick={() => handleStatusChange("in_review")}
-                  disabled={issue.status === "in_review"}
-                >
-                  Đang xem xét
-                </Button>
-                <Button
-                  type={issue.status === "done" ? "primary" : "default"}
-                  onClick={() => handleStatusChange("done")}
-                  disabled={issue.status === "done"}
-                >
-                  Hoàn thành
-                </Button>
-              </Space>
-            </div>
+            {user?.role !== "Stakeholder" && (
+              <>
+                <Divider orientation="left">Chuyển trạng thái</Divider>
+                <div style={{ marginBottom: "24px" }}>
+                  <Space>
+                    <Button
+                      type={issue.status === "todo" ? "primary" : "default"}
+                      onClick={() => handleStatusChange("todo")}
+                      disabled={issue.status === "todo"}
+                    >
+                      Cần làm
+                    </Button>
+                    <Button
+                      type={
+                        issue.status === "in_progress" ? "primary" : "default"
+                      }
+                      onClick={() => handleStatusChange("in_progress")}
+                      disabled={issue.status === "in_progress"}
+                    >
+                      Đang làm
+                    </Button>
+                    <Button
+                      type={
+                        issue.status === "in_review" ? "primary" : "default"
+                      }
+                      onClick={() => handleStatusChange("in_review")}
+                      disabled={issue.status === "in_review"}
+                    >
+                      Đang xem xét
+                    </Button>
+                    <Button
+                      type={issue.status === "done" ? "primary" : "default"}
+                      onClick={() => handleStatusChange("done")}
+                      disabled={issue.status === "done"}
+                    >
+                      Hoàn thành
+                    </Button>
+                  </Space>
+                </div>
+              </>
+            )}
           </TabPane>
 
           <TabPane tab="Bình luận" key="comments">
@@ -539,66 +545,128 @@ const IssueDetailPage = () => {
             </div>
           </TabPane>
 
-          <TabPane tab="Tệp đính kèm" key="attachments">
-            {isAttachmentsLoading ? (
-              <Skeleton active />
-            ) : (
-              <>
-                <Upload.Dragger
-                  name="files"
-                  multiple
-                  customRequest={({ file, onSuccess }) => {
-                    handleImmediateFileUpload(file as File);
-                    onSuccess?.("ok");
-                  }}
-                  showUploadList={false}
-                >
-                  <p className="ant-upload-drag-icon">
-                    <InboxOutlined />
-                  </p>
-                  <p className="ant-upload-text">
-                    Nhấn hoặc kéo tệp vào khu vực này để tải lên
-                  </p>
-                  <p className="ant-upload-hint">
-                    Hỗ trợ tải lên một hoặc nhiều tệp.
-                  </p>
-                </Upload.Dragger>
+          {user?.role !== "Stakeholder" && (
+            <TabPane tab="Tệp đính kèm" key="attachments">
+              {isAttachmentsLoading ? (
+                <Skeleton active />
+              ) : (
+                <>
+                  <Upload.Dragger
+                    name="files"
+                    multiple
+                    customRequest={({ file, onSuccess }) => {
+                      handleImmediateFileUpload(file as File);
+                      onSuccess?.("ok");
+                    }}
+                    showUploadList={false}
+                  >
+                    <p className="ant-upload-drag-icon">
+                      <InboxOutlined />
+                    </p>
+                    <p className="ant-upload-text">
+                      Nhấn hoặc kéo tệp vào khu vực này để tải lên
+                    </p>
+                    <p className="ant-upload-hint">
+                      Hỗ trợ tải lên một hoặc nhiều tệp.
+                    </p>
+                  </Upload.Dragger>
 
-                <Divider />
+                  <Divider />
 
-                <List
-                  itemLayout="horizontal"
-                  dataSource={attachments}
-                  renderItem={(attachment, index) => (
-                    <List.Item
-                      actions={[
-                        <Button
-                          type="link"
-                          icon={<DownloadOutlined />}
-                          onClick={() => handleDownloadAttachment(attachment.id!, attachment.fileName!)}
-                        >
-                          Tải xuống
-                        </Button>,
-                        <Button
-                          type="text"
-                          danger
-                          icon={<DeleteOutlined />}
-                          onClick={() => handleDeleteAttachment(attachment.id!)}
-                        >
-                          Xóa
-                        </Button>
-                      ]}
-                    >
-                      <List.Item.Meta
-                        avatar={<PaperClipOutlined />}
-                        title={`Tệp đính kèm ${index + 1}`}
-                        description={attachment.fileName || attachment.filePath}
-                      />
-                    </List.Item>
-                  )}
-                />
-              </>
-            )}
+                  <List
+                    itemLayout="horizontal"
+                    dataSource={attachments}
+                    renderItem={(attachment, index) => (
+                      <List.Item
+                        actions={[
+                          <Button
+                            type="link"
+                            icon={<DownloadOutlined />}
+                            onClick={() =>
+                              handleDownloadAttachment(
+                                attachment.id!,
+                                attachment.fileName!
+                              )
+                            }
+                          >
+                            Tải xuống
+                          </Button>,
+                          <Button
+                            type="text"
+                            danger
+                            icon={<DeleteOutlined />}
+                            onClick={() =>
+                              handleDeleteAttachment(attachment.id!)
+                            }
+                          >
+                            Xóa
+                          </Button>,
+                        ]}
+                      >
+                        <List.Item.Meta
+                          avatar={<PaperClipOutlined />}
+                          title={`Tệp đính kèm ${index + 1}`}
+                          description={
+                            attachment.fileName || attachment.filePath
+                          }
+                        />
+                      </List.Item>
+                    )}
+                  />
+                </>
+              )}
+            </TabPane>
+          )}
+
+          <TabPane tab="Lịch sử thay đổi" key="history">
+            <List
+              itemLayout="vertical"
+              dataSource={issue.logs}
+              renderItem={(log, index) => {
+                let oldData, newData;
+
+                try {
+                  oldData =
+                    typeof log.oldData === "string"
+                      ? JSON.parse(log.oldData)
+                      : log.oldData;
+                  newData =
+                    typeof log.newData === "string"
+                      ? JSON.parse(log.newData)
+                      : log.newData;
+                } catch (err) {
+                  console.error("Lỗi parse JSON:", err);
+                  return <List.Item>Lỗi dữ liệu JSON</List.Item>;
+                }
+
+                // Tìm các key bị thay đổi
+                const changedFields = Object.keys(newData).filter((key) => {
+                  // So sánh đơn giản, nếu cần sâu hơn thì dùng deep compare
+                  return oldData?.[key] !== newData?.[key];
+                });
+
+                return (
+                  <List.Item>
+                    <List.Item.Meta title={`Thay đổi ${index + 1}`} />
+                    {changedFields.length === 0 ? (
+                      <Text type="secondary">Không có thay đổi.</Text>
+                    ) : (
+                      changedFields.map((key) => (
+                        <div key={key} style={{ marginBottom: 8 }}>
+                          <Text strong>{key}</Text>
+                          <br />
+                          <Text type="secondary">Giá trị cũ: </Text>
+                          {JSON.stringify(oldData[key])}
+                          <br />
+                          <Text type="secondary">Giá trị mới: </Text>
+                          {JSON.stringify(newData[key])}
+                        </div>
+                      ))
+                    )}
+                  </List.Item>
+                );
+              }}
+            />
           </TabPane>
         </Tabs>
       </Card>
@@ -609,13 +677,14 @@ const IssueDetailPage = () => {
         open={isEditIssueModalVisible}
         onCancel={() => setIsEditIssueModalVisible(false)}
         onOk={() => {
-          issueEditForm.validateFields()
-            .then(values => {
+          issueEditForm
+            .validateFields()
+            .then((values) => {
               // Get attachment files from the form
               const { files } = values;
               const fileList = files?.fileList || [];
               const attachmentFiles = fileList.map((f: any) => f.originFileObj);
-              
+
               // Prepare updated issue with all needed fields
               const updatedIssue = {
                 ...issue,
@@ -623,38 +692,42 @@ const IssueDetailPage = () => {
                 description: values.description,
                 type: values.type,
                 priority: values.priority,
-                assigneeId: values.assigneeId
+                assigneeId: values.assigneeId,
               };
-              
+
               // Call update mutation
               updateIssueMutation.mutate(updatedIssue, {
                 onSuccess: () => {
-                  message.success('Công việc đã được cập nhật thành công');
+                  message.success("Công việc đã được cập nhật thành công");
                   setIsEditIssueModalVisible(false);
-                  
+
                   // Upload attachments if any
                   if (attachmentFiles.length > 0 && id) {
                     uploadMultipleAttachmentsMutation.mutate(
                       { files: attachmentFiles, issueId: id },
                       {
                         onSuccess: () => {
-                          message.success('Tệp đính kèm đã được tải lên thành công');
+                          message.success(
+                            "Tệp đính kèm đã được tải lên thành công"
+                          );
                           refetchAttachments();
                         },
                         onError: (error) => {
-                          message.error(`Không thể tải lên tệp đính kèm: ${error}`);
-                        }
+                          message.error(
+                            `Không thể tải lên tệp đính kèm: ${error}`
+                          );
+                        },
                       }
                     );
                   }
                 },
                 onError: (error) => {
                   message.error(`Không thể cập nhật công việc: ${error}`);
-                }
+                },
               });
             })
-            .catch(info => {
-              console.log('Validate Failed:', info);
+            .catch((info) => {
+              console.log("Validate Failed:", info);
             });
         }}
         confirmLoading={updateIssueMutation.isPending}
@@ -664,11 +737,13 @@ const IssueDetailPage = () => {
           <Form.Item
             name="title"
             label="Tiêu đề"
-            rules={[{ required: true, message: 'Vui lòng nhập tiêu đề công việc' }]}
+            rules={[
+              { required: true, message: "Vui lòng nhập tiêu đề công việc" },
+            ]}
           >
             <Input />
           </Form.Item>
-          
+
           <Form.Item
             name="key"
             label="Mã công việc"
@@ -676,7 +751,7 @@ const IssueDetailPage = () => {
           >
             <Input placeholder="Mã công việc (tự động tạo nếu để trống)" />
           </Form.Item>
-          
+
           <Form.Item
             name="reporterId"
             label="Người báo cáo"
@@ -691,14 +766,16 @@ const IssueDetailPage = () => {
               ))}
             </Select>
           </Form.Item>
-          
+
           <Form.Item
             name="type"
             label="Loại công việc"
-            rules={[{ required: true, message: 'Vui lòng chọn loại công việc' }]}
+            rules={[
+              { required: true, message: "Vui lòng chọn loại công việc" },
+            ]}
           >
             <Select placeholder="Chọn loại công việc">
-              {ISSUE_TYPES.map(type => (
+              {ISSUE_TYPES.map((type) => (
                 <Option key={type.id} value={type.id}>
                   <Space>
                     {type.icon()}
@@ -712,10 +789,10 @@ const IssueDetailPage = () => {
           <Form.Item
             name="priority"
             label="Mức ưu tiên"
-            rules={[{ required: true, message: 'Vui lòng chọn mức ưu tiên' }]}
+            rules={[{ required: true, message: "Vui lòng chọn mức ưu tiên" }]}
           >
             <Select placeholder="Chọn mức ưu tiên">
-              {ISSUE_PRIORITIES.map(priority => (
+              {ISSUE_PRIORITIES.map((priority) => (
                 <Option key={priority.id} value={priority.id}>
                   <Space>
                     {priority.icon()}
@@ -725,13 +802,18 @@ const IssueDetailPage = () => {
               ))}
             </Select>
           </Form.Item>
-          
+
           <Form.Item
             name="assigneeId"
             label="Người được giao"
-            rules={[{ required: false, message: "Vui lòng chọn người được giao" }]}
+            rules={[
+              { required: false, message: "Vui lòng chọn người được giao" },
+            ]}
           >
-            <Select placeholder="Chọn người được giao" defaultValue={issue.assigneeId}>
+            <Select
+              placeholder="Chọn người được giao"
+              defaultValue={issue.assigneeId}
+            >
               {usersData?.map((u) => (
                 <Option key={u.id} value={u.id}>
                   {u.username}
@@ -739,19 +821,16 @@ const IssueDetailPage = () => {
               ))}
             </Select>
           </Form.Item>
-          
-          <Form.Item
-            name="description"
-            label="Mô tả"
-          >
+
+          <Form.Item name="description" label="Mô tả">
             <TextArea rows={4} />
           </Form.Item>
-          
+
           <Form.Item
             name="files"
             label="Tệp đính kèm"
             valuePropName="fileList"
-            getValueFromEvent={e => {
+            getValueFromEvent={(e) => {
               if (Array.isArray(e)) {
                 return e;
               }
@@ -767,31 +846,40 @@ const IssueDetailPage = () => {
                   { file: file as File, issueId: id },
                   {
                     onSuccess: (data) => {
-                      message.success(`${(file as File).name} đã được tải lên thành công`);
+                      message.success(
+                        `${(file as File).name} đã được tải lên thành công`
+                      );
                       // Store the attachment data returned from the server
                       (file as any).attachmentId = data.id;
                       (file as any).attachmentData = data;
                       onSuccess?.(data, new XMLHttpRequest());
-                      
+
                       // Add the new attachment ID to the issue's attachmentIds array
                       if (data.id && issue) {
-                        const attachmentIds = [...(issue.attachmentIds || []), data.id];
+                        const attachmentIds = [
+                          ...(issue.attachmentIds || []),
+                          data.id,
+                        ];
                         const updatedIssue = { ...issue, attachmentIds };
-                        
+
                         // Update the issue with the new attachmentIds array
                         updateIssueMutation.mutate(updatedIssue, {
                           onSuccess: () => {
                             refetchAttachments();
                           },
                           onError: (error) => {
-                            message.error(`Không thể cập nhật tệp đính kèm của công việc: ${error}`);
-                          }
+                            message.error(
+                              `Không thể cập nhật tệp đính kèm của công việc: ${error}`
+                            );
+                          },
                         });
                       }
                     },
                     onError: (error) => {
-                      message.error(`Không thể tải lên ${(file as File).name}: ${error}`);
-                    }
+                      message.error(
+                        `Không thể tải lên ${(file as File).name}: ${error}`
+                      );
+                    },
                   }
                 );
               }}
@@ -800,8 +888,12 @@ const IssueDetailPage = () => {
               <p className="ant-upload-drag-icon">
                 <InboxOutlined />
               </p>
-              <p className="ant-upload-text">Nhấn hoặc kéo tệp vào khu vực này để tải lên</p>
-              <p className="ant-upload-hint">Hỗ trợ tải lên một hoặc nhiều tệp.</p>
+              <p className="ant-upload-text">
+                Nhấn hoặc kéo tệp vào khu vực này để tải lên
+              </p>
+              <p className="ant-upload-hint">
+                Hỗ trợ tải lên một hoặc nhiều tệp.
+              </p>
             </Upload.Dragger>
           </Form.Item>
         </Form>

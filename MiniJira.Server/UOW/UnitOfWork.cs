@@ -17,7 +17,9 @@ namespace MiniJira.Server.UOW
             IProjectMemberRepository projectMemberRepository,
             IProjectRepository projectRepository,
             IUserRepository userRepository,
-            IIssueAttachmentRepository issueAttachmentRepository)
+            IIssueAttachmentRepository issueAttachmentRepository,
+            IAuditLogRepository auditLogRepository
+            )
         {
             _context = context;
             AttachmentRepository = attachmentRepository;
@@ -27,20 +29,17 @@ namespace MiniJira.Server.UOW
             ProjectRepository = projectRepository;
             UserRepository = userRepository;
             IssueAttachmentRepository = issueAttachmentRepository;
+            AuditLogRepository = auditLogRepository;
         }
 
         public IAttachmentRepository AttachmentRepository { get; }
-
         public ICommentRepository CommentRepository { get; }
-
         public IIssueRepository IssueRepository { get; }
-
         public IProjectMemberRepository ProjectMemberRepository { get; }
-
         public IProjectRepository ProjectRepository { get; }
-
         public IUserRepository UserRepository { get; }
         public IIssueAttachmentRepository IssueAttachmentRepository { get; }
+        public IAuditLogRepository AuditLogRepository { get; }
 
         public async Task BeginTransactionAsync()
         {

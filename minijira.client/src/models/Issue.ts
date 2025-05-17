@@ -18,6 +18,12 @@ export interface Issue {
   updatedAt?: Dayjs;
   attachmentIds?: string[];
   attachmentUrls?: string[];
+  logs?: string[];
+}
+
+export interface ChangeIssueData {
+  oldData?: string;
+  newData?: string;
 }
 
 export interface IssueFilter {

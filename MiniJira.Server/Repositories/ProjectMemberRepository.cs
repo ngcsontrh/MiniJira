@@ -18,9 +18,23 @@ namespace MiniJira.Server.Repositories
                 .ExecuteDeleteAsync();
         }
 
-        public Task<List<ProjectMember>> GetProjectMembersByProjectIdAsync(Guid projectId)
+        public async Task<List<ProjectMember>> GetProjectMembersByMemberIdAsync(Guid memberId)
         {
-            return _context.ProjectMembers
+            return await _context.ProjectMembers
+                .Where(pm => pm.MemberId == memberId)
+                .ToListAsync();
+        }
+
+        public async Task<List<ProjectMember>> GetProjectMembersByProjectAndMemberIdAsync(Guid projectId, Guid memberId)
+        {
+            return await _context.ProjectMembers
+                .Where(pm => pm.MemberId == memberId && pm.ProjectId == projectId)
+                .ToListAsync();
+        }
+
+        public async Task<List<ProjectMember>> GetProjectMembersByProjectIdAsync(Guid projectId)
+        {
+            return await _context.ProjectMembers
                 .Where(pm => pm.ProjectId == projectId)
                 .ToListAsync();
         }

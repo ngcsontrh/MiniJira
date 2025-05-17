@@ -10,6 +10,7 @@ import {
   Form,
   Input,  
   message,
+  Select,
 } from 'antd';
 import {
   PlusOutlined,
@@ -17,7 +18,7 @@ import {
   MailOutlined,
   EyeOutlined
 } from '@ant-design/icons';
-import { useUsers, useRegisterUser } from '../hooks/useUsers';
+import { useUsers, useRegisterUser, useChangeUserRole } from '../hooks/useUsers';
 import { User } from '../models/User';
 import useAuth from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
@@ -36,6 +37,18 @@ const UsersPage: React.FC = () => {
   
   // Use the useRegisterUser mutation hook for creating users
   const registerUserMutation = useRegisterUser();
+
+  const changeUserRoleMutation = useChangeUserRole();
+  const handleChangeUserRole = async (userId: string, role: string) => {
+    try {
+      await changeUserRoleMutation.mutateAsync({ userId, role });
+      messageApi.success('Cập nhật vai trò thành công');
+      refetch(); // Refresh the users list after changing the role
+    } catch (error) {
+      console.error('Error changing user role:', error);
+      messageApi.error('Không thể cập nhật vai trò. Vui lòng thử lại.');
+    }
+  };
 
   const showCreateModal = () => {
     form.resetFields();
@@ -65,16 +78,6 @@ const UsersPage: React.FC = () => {
       console.error('Submit failed:', error);
       messageApi.error('Không thể lưu người dùng. Vui lòng thử lại.');
     }
-  };
-
-  // Updated to use the UserRole from models/User.ts
-  const getRoleTag = (role: string) => {
-    const roleColors: Record<string, string> = {
-      admin: 'red',
-      user: 'blue',
-    };
-
-    return <Tag color={roleColors[role] || 'default'}>{role.toUpperCase()}</Tag>;
   };
 
   const columns = [
@@ -108,7 +111,23 @@ const UsersPage: React.FC = () => {
       title: 'Vai trò',
       dataIndex: 'role',
       key: 'role',
-      render: (role: string) => getRoleTag(role),
+      render: (_: unknown, record: User) => (
+        <>
+          <Select
+            defaultValue={record.role}
+            style={{ width: 120 }}
+            onChange={(value) => handleChangeUserRole(record.id!, value)}
+            disabled={currentUser?.id === record.id} // Disable for current user                          
+          >
+            <Select.Option value="Admin">Admin</Select.Option>
+            <Select.Option value="ProjectManager">Project Manager</Select.Option>
+            <Select.Option value="Developer">Developer</Select.Option>
+            <Select.Option value="Tester">Tester</Select.Option>
+            <Select.Option value="Stakeholder">Stakeholder</Select.Option>
+            <Select.Option value="Viewer">Viewer</Select.Option>
+          </Select>
+        </>
+      )
     },
     {
       title: 'Ngày tạo',
@@ -177,11 +196,15 @@ const UsersPage: React.FC = () => {
             rules={[
               { required: true, message: "Vui lòng nhập tên người dùng" },
               { min: 3, message: "Tên người dùng phải có ít nhất 3 ký tự" },
-              { max: 20, message: "Tên người dùng không được vượt quá 20 ký tự" },
+              {
+                max: 20,
+                message: "Tên người dùng không được vượt quá 20 ký tự",
+              },
               {
                 pattern: /^[a-zA-Z][a-zA-Z0-9_]*$/,
-                message: "Tên người dùng chỉ được chứa chữ cái, số và dấu gạch dưới, và phải bắt đầu bằng chữ cái"
-              }
+                message:
+                  "Tên người dùng chỉ được chứa chữ cái, số và dấu gạch dưới, và phải bắt đầu bằng chữ cái",
+              },
             ]}
           >
             <Input />
@@ -199,11 +222,29 @@ const UsersPage: React.FC = () => {
           </Form.Item>
 
           <Form.Item
+            name="role"
+            label="Vai trò"
+            rules={[{ required: true, message: "Vui lòng chọn vai trò" }]}
+            initialValue={"Viewer"}
+          >
+            <Select placeholder="Chọn vai trò">
+              <Select.Option value="Admin">Admin</Select.Option>
+              <Select.Option value="ProjectManager">
+                Project Manager
+              </Select.Option>
+              <Select.Option value="Developer">Developer</Select.Option>
+              <Select.Option value="Tester">Tester</Select.Option>
+              <Select.Option value="Stakeholder">Stakeholder</Select.Option>
+              <Select.Option value="Viewer">Viewer</Select.Option>
+            </Select>
+          </Form.Item>
+          <Form.Item
             name="password"
             label="Mật khẩu"
             rules={[
-              { required: true, message: 'Vui lòng nhập mật khẩu!' },
-              { min: 5, message: 'Mật khẩu phải có ít nhất 6 ký tự!' }            ]}
+              { required: true, message: "Vui lòng nhập mật khẩu!" },
+              { min: 5, message: "Mật khẩu phải có ít nhất 6 ký tự!" },
+            ]}
           >
             <Input.Password />
           </Form.Item>

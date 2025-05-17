@@ -16,6 +16,7 @@ namespace MiniJira.Server.Data
         public DbSet<Attachment> Attachments { get; set; } = null!;
         public DbSet<IssueAttachment> IssueAttachments { get; set; } = null!;
         public DbSet<ProjectMember> ProjectMembers { get; set; } = null!;
+        public DbSet<AuditLog> AuditLogs { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

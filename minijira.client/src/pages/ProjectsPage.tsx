@@ -110,26 +110,32 @@ const ProjectsPage: React.FC = () => {
 
   const columns = [
     {
-      title: 'Dự án',
-      key: 'name',
-      render: (_: unknown, record: Project) => (
-        <Link to={`/projects/${record.id}`}>
+      title: "Dự án",
+      key: "name",
+      render: (_: unknown, record: Project) => {
+        const isDisplay =
+          user?.role === "Admin" || user?.role === "ProjectManager";
+        return (
           <Space>
             <ProjectOutlined />
-            {record.name}
+            {isDisplay ? (
+              <Link to={`/projects/${record.id}`}>{record.name}</Link>
+            ) : (
+              <span>{record.name}</span>
+            )}
           </Space>
-        </Link>
-      ),
+        );
+      },
     },
     {
-      title: 'Mã',
-      dataIndex: 'key',
-      key: 'key',
+      title: "Mã",
+      dataIndex: "key",
+      key: "key",
     },
     {
-      title: 'Chủ sở hữu',
-      dataIndex: 'ownerId',
-      key: 'ownerId',
+      title: "Chủ sở hữu",
+      dataIndex: "ownerId",
+      key: "ownerId",
       render: (ownerId: string) => (
         <Space>
           <Avatar size="small" icon={<UserOutlined />} />
@@ -138,8 +144,8 @@ const ProjectsPage: React.FC = () => {
       ),
     },
     {
-      title: 'Xem công việc',
-      key: 'viewIssues',
+      title: "Xem công việc",
+      key: "viewIssues",
       render: (_: unknown, record: Project) => (
         <Link to={`/issues?projectId=${record.id}`}>
           <Button type="link">Xem công việc</Button>
@@ -147,22 +153,30 @@ const ProjectsPage: React.FC = () => {
       ),
     },
     {
-      title: 'Ngày tạo',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
+      title: "Ngày tạo",
+      dataIndex: "createdAt",
+      key: "createdAt",
       render: (text: string) => new Date(text).toLocaleDateString(),
     },
-    {
-      title: 'Thao tác',
-      key: 'actions',
-      render: (_: unknown, record: Project) => (
-        <Space>
-          <Link to={`/projects/${record.id}`}>
-            <Button type="text" icon={<EditOutlined />} />
-          </Link>
-        </Space>
-      ),
-    },
+    ...(() => {
+      const isDisplay = user?.role === "Admin" || user?.role === "ProjectManager";
+
+      if (!isDisplay) return [];
+
+      return [
+        {
+          title: "Thao tác",
+          key: "actions",
+          render: (_: unknown, record: Project) => (
+            <Space>
+              <Link to={`/projects/${record.id}`}>
+                <Button type="text" icon={<EditOutlined />} />
+              </Link>
+            </Space>
+          ),
+        },
+      ];
+    })(),
   ];
 
   if (isLoading) {
@@ -180,13 +194,6 @@ const ProjectsPage: React.FC = () => {
         }}
       >
         <Title level={2}>Dự án</Title>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={showCreateModal}
-        >
-          Tạo dự án mới
-        </Button>
       </div>
 
       <Flex justify="space-between" align="center" style={{ marginBottom: 16 }}>
@@ -200,6 +207,15 @@ const ProjectsPage: React.FC = () => {
         >
           {showMyProjects ? "Tất cả dự án" : "Dự án của tôi"}
         </Button>
+        {(user?.role === "Admin" || user?.role === "ProjectManager") && (
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={showCreateModal}
+            >
+              Tạo dự án mới
+            </Button>
+          )}
       </Flex>
 
       <Table
@@ -240,25 +256,27 @@ const ProjectsPage: React.FC = () => {
               { required: true, message: "Vui lòng nhập mã dự án" },
               {
                 pattern: /^[a-zA-Z0-9]*$/,
-                message: "Chỉ được nhập chữ và số (không dấu, không ký tự đặc biệt)"
-              }
+                message:
+                  "Chỉ được nhập chữ và số (không dấu, không ký tự đặc biệt)",
+              },
             ]}
             tooltip="Một định danh ngắn cho dự án, ví dụ: 'PROJ'"
           >
             <Input maxLength={10} style={{ textTransform: "uppercase" }} />
           </Form.Item>
 
-          <Form.Item 
-            name="description" 
+          <Form.Item
+            name="description"
             label="Mô tả"
             rules={[
               { max: 255, message: "Mô tả không được quá 255 ký tự" },
               {
                 pattern: /^[a-zA-Z0-9]*$/,
-                message: "Chỉ được nhập chữ và số (không dấu, không ký tự đặc biệt)"
-              }
+                message:
+                  "Chỉ được nhập chữ và số (không dấu, không ký tự đặc biệt)",
+              },
             ]}
-            >
+          >
             <TextArea rows={4} />
           </Form.Item>
 
@@ -267,7 +285,10 @@ const ProjectsPage: React.FC = () => {
             label="Chủ sở hữu"
             rules={[{ required: true, message: "Vui lòng chọn chủ sở hữu" }]}
           >
-            <Select placeholder="Chọn chủ sở hữu" onChange={(value) => setOwnerId(value)}>
+            <Select
+              placeholder="Chọn chủ sở hữu"
+              onChange={(value) => setOwnerId(value)}
+            >
               {users.map((u) => (
                 <Option key={u.id} value={u.id}>
                   {u.username}
@@ -283,11 +304,13 @@ const ProjectsPage: React.FC = () => {
               style={{ width: "100%" }}
               optionFilterProp="children"
             >
-              {users.filter(x => x.id !== ownerId).map((u) => (
-                <Option key={u.id} value={u.id}>
-                  {u.username}
-                </Option>
-              ))}
+              {users
+                .filter((x) => x.id !== ownerId)
+                .map((u) => (
+                  <Option key={u.id} value={u.id}>
+                    {u.username}
+                  </Option>
+                ))}
             </Select>
           </Form.Item>
         </Form>

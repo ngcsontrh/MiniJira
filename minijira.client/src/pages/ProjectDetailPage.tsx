@@ -266,7 +266,7 @@ const ProjectDetailPage = () => {
       title: 'Ngày tạo',
       dataIndex: 'createdAt',
       key: 'createdAt',
-      render: (date: any) => date ? dayjs(date).format('YYYY-MM-DD') : 'N/A',
+      render: (createdAt: any) => createdAt ? dayjs(createdAt).format('YYYY-MM-DD') : 'N/A',
     },
     {
       title: "Thao tác",
@@ -325,7 +325,7 @@ const ProjectDetailPage = () => {
           <Descriptions.Item label="Mô tả" span={3}>{project.description || 'Không có mô tả'}</Descriptions.Item>
           <Descriptions.Item label="Ngày tạo">{project.createdAt ? dayjs(project.createdAt).format('YYYY-MM-DD HH:mm:ss') : 'N/A'}</Descriptions.Item>
           <Descriptions.Item label="Ngày cập nhật">{project.updatedAt ? dayjs(project.updatedAt).format('YYYY-MM-DD HH:mm:ss') : 'N/A'}</Descriptions.Item>
-          <Descriptions.Item label="ID Chủ sở hữu">{project.ownerId || 'N/A'}</Descriptions.Item>
+          <Descriptions.Item label="Chủ sở hữu">{project.ownerName || 'N/A'}</Descriptions.Item>
         </Descriptions>
         
         <Tabs defaultActiveKey="issues" style={{ marginTop: 20 }}>
